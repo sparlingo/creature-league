@@ -407,7 +407,18 @@ function render() {
   const p = $('#pool'); if (p) p.innerHTML = tab === 'draft' ? poolHTML() : freeAgentsHTML();
 }
 function softRender() { const a = document.activeElement; if (a && a.matches && a.matches('input,select,textarea') && a.closest('#root')) { pend = true; return; } render(); }
-document.addEventListener('focusout', () => { if (pend) { pend = false; setTimeout(() => { const a = document.activeElement; if (!(a && a.matches && a.matches('input,select,textarea'))) render(); }, 50); } });
+// Never redraw the page under someone's finger: wait until nothing is focused or pressed.
+let pointerDown = false;
+document.addEventListener('pointerdown', () => { pointerDown = true; }, true);
+document.addEventListener('pointerup', () => setTimeout(() => { pointerDown = false; }, 0), true);
+document.addEventListener('pointercancel', () => { pointerDown = false; }, true);
+function flushPending(n) {
+  if (!pend) return;
+  const a = document.activeElement;
+  if (pointerDown || (a && a.matches && a.matches('input,select,textarea') && a.closest('#root'))) { if (n < 40) setTimeout(() => flushPending(n + 1), 300); return; }
+  pend = false; render();
+}
+document.addEventListener('focusout', () => { if (pend) setTimeout(() => flushPending(0), 500); });
 
 async function loadState(force) {
   if (!TOKEN || isTeacher()) return;
@@ -421,7 +432,12 @@ async function loadState(force) {
 }
 async function tRefresh(full) {
   if (!TT || !isTeacher()) return;
-  try { await tLoad(full); err = ''; softRender(); } catch (e) { if (e.status === 401) TT = null, lsSet('cdl:ttoken'); err = e.message; render(); }
+  try {
+    await tLoad(full);
+    const sig = JSON.stringify([TS.leagues, TS.data]), changed = sig !== TS.sig || !!err || full;
+    TS.sig = sig; err = '';
+    if (changed) softRender();               // unchanged data never redraws the page
+  } catch (e) { if (e.status === 401) { TT = null; lsSet('cdl:ttoken'); } err = e.message; render(); }
 }
 setInterval(() => { if (document.hidden) return; if (isTeacher()) tRefresh(); else loadState(); }, 3500);
 window.addEventListener('hashchange', () => { err = ''; render(); if (isTeacher()) tRefresh(true); else loadState(true); });
