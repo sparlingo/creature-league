@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Creature Draft League</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%8A%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#f6f1e7;--surface:#fffdf8;--ink:#1d2b2a;--muted:#667572;--line:#ddd5c4;--chip:#efe7d5;
+--accent:#0f7b6c;--accent-ink:#fff;--hot:#d95a22;--good:#23813f;--bad:#c4372f;--sel:#fff1d6;
+--display:"Fredoka","Trebuchet MS",system-ui,sans-serif;--body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1919;--surface:#172625;--ink:#e8efe9;--muted:#93a39e;--line:#2a3e3c;--chip:#203634;--accent:#3fc7ae;--accent-ink:#06211d;--hot:#ff8a52;--good:#59d17f;--bad:#ff7a70;--sel:#3a3320;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+.wrap{max-width:1000px;margin:0 auto;padding-inline:16px;padding-block:16px 56px;display:flex;flex-direction:column;gap:14px}
+h1{font-family:var(--display);font-size:1.7rem;margin:0}h2{font-family:var(--display);font-size:1.3rem;margin:0}h3{font-family:var(--display);font-size:1.05rem;margin:0}
+p{margin:0}.note{color:var(--muted)}.sm{font-size:.9rem}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sp{justify-content:space-between}
+.col{display:flex;flex-direction:column;gap:12px}
+button,input,select,textarea{font:inherit;color:inherit}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:9px 16px;font-weight:800;cursor:pointer}
+.btn.alt{background:var(--chip);color:var(--ink)}.btn.warn{background:var(--hot);color:#fff}.btn.sm{padding:5px 11px;font-size:.88rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+input[type=text],input[type=password],input[type=number],select,textarea{background:var(--surface);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;max-width:100%}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:14px}
+.banner{background:var(--sel);border:1.5px dashed var(--hot);border-radius:12px;padding:10px 14px}
+.err{color:var(--bad);font-weight:800}
+.tabs{display:flex;gap:2px;overflow-x:auto;border-bottom:2px solid var(--line)}
+.tab{background:none;border:0;padding:10px 13px;font-family:var(--display);font-weight:600;font-size:1rem;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.tab[aria-selected=true]{color:var(--accent);border-bottom-color:var(--accent)}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;cursor:pointer;font-weight:800}
+.chip[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-weight:800;font-size:.85rem;background:var(--chip)}
+.pill.on{background:var(--accent);color:var(--accent-ink)}.pill.hot{background:var(--hot);color:#fff}
+.clock{font-family:var(--display);font-size:1.15rem;background:var(--accent);color:var(--accent-ink);border-radius:12px;padding:10px 14px}
+.clock.me{background:var(--hot);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.grid.sm{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.cr{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px;text-align:left;display:flex;flex-direction:column;gap:6px;min-width:0;cursor:pointer;width:100%}
+div.cr{cursor:default}
+.cr[aria-pressed=true]{border-color:var(--hot);background:var(--sel);box-shadow:0 0 0 2px var(--hot)}
+.cr.start{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.cr .top{display:flex;gap:8px;align-items:center}.cr .e{font-size:2rem;line-height:1}.cr b{font-family:var(--display)}
+.cr small{display:block;color:var(--muted)}
+.st4{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;font-size:.88rem;font-variant-numeric:tabular-nums}
+.st4 span{display:flex;align-items:center;gap:6px}.st4 i{font-style:normal;font-weight:800;min-width:2.1em}
+.bar{flex:1;height:5px;background:var(--chip);border-radius:3px;overflow:hidden}.bar u{display:block;height:100%;background:var(--accent)}
+.meta{font-size:.85rem;color:var(--muted)}
+.teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
+.team{border:1.5px solid var(--line);border-radius:12px;padding:10px;background:var(--surface);min-width:0}
+.team.on{border-color:var(--hot);box-shadow:0 0 0 2px var(--hot)}.team.me{background:var(--sel)}
+.team h3{margin-bottom:4px;overflow-wrap:anywhere}
+.slot{font-size:.92rem;padding:2px 0;border-top:1px dotted var(--line)}.slot.empty{color:var(--muted)}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}th:first-child,td:first-child{text-align:left}
+th{font-family:var(--display);font-weight:600;color:var(--muted)}tr.me td{background:var(--sel)}
+.wx{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--chip);border-radius:14px;padding:12px 14px}
+.wx .big{font-size:2.4rem;line-height:1}.wx .nm{font-family:var(--display);font-size:1.25rem}
+.mul{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:3px 11px;font-weight:800;font-variant-numeric:tabular-nums}
+.mul.up{border-color:var(--good);color:var(--good)}.mul.dn{border-color:var(--bad);color:var(--bad)}
+.chips6{display:flex;gap:6px;flex-wrap:wrap}
+.sc{background:var(--chip);border-radius:8px;padding:3px 9px;font-weight:800;font-variant-numeric:tabular-nums}
+.sc small{color:var(--muted);font-weight:600;margin-right:4px}.sc.pu{background:var(--sel);outline:2px solid var(--hot)}
+.q{display:grid;grid-template-columns:minmax(10em,1.3fr) minmax(7em,10em) auto minmax(0,1.4fr);gap:8px;align-items:center}
+.q input{width:100%;padding:8px 10px;font-variant-numeric:tabular-nums}
+.q input.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--surface))}.q input.no{border-color:var(--bad)}
+.msg{font-size:.9rem}.msg.ok{color:var(--good);font-weight:800}.msg.no{color:var(--bad)}
+.formula{font-family:var(--display);font-size:1.15rem;background:var(--chip);border-radius:10px;padding:8px 12px;display:inline-block}
+.big{font-family:var(--display);font-size:2rem}
+.win{color:var(--good)}.loss{color:var(--bad)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:9}
+.modal .card{max-width:640px;width:100%;max-height:90%;overflow:auto}
+@media (max-width:620px){.q{grid-template-columns:1fr auto}.q .lbl{grid-column:1/-1}.q .msg{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div class="wrap" id="root"></div>
+<script src="engine.js"></script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} };
+const C = Engine.catalog(), cr = id => C[id - 1];
+const { f1, f2, f3, fmtMult } = Engine;
+
+let TOKEN = lsGet('cdl:token'), TT = lsGet('cdl:ttoken'), S = null, tab = 'home', err = '', note = '';
+let sel = null, flt = { q: '', type: '', role: '', sort: 'base' }, faq = '', pend = false;
+let lineup = null, lineupKey = '', puSel = { type: '', target: 0 }, addSel = 0, dropSel = 0;
+let inputs = {}, busy = false;
+const isTeacher = () => location.hash.startsWith('#/teacher');
+
+async function api(action, body, tok) {
+  const r = await fetch('/api', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + (tok || '') }, body: JSON.stringify({ action, ...(body || {}) }) });
+  let j = {}; try { j = await r.json(); } catch (e) {}
+  if (!r.ok) { const e = new Error(j.error || 'Request failed (' + r.status + ')'); e.status = r.status; throw e; }
+  return j;
+}
+async function act(fn) { // run an action, show errors in-page
+  if (busy) return; busy = true; err = '';
+  try { await fn(); } catch (e) { err = e.message; if (e.status === 401) { if (isTeacher()) { TT = null; lsSet('cdl:ttoken'); } else { TOKEN = null; lsSet('cdl:token'); S = null; } } }
+  busy = false; render();
+}
+
+/* =============================== shared bits =============================== */
+const typeIcon = t => Engine.TYPE_ICON[t];
+function ratingRow(label, v) { return `<span>${label} <i>${f1(v)}</i><span class="bar"><u style="width:${v}%"></u></span></span>`; }
+function cCard(c, o = {}) {
+  const tag = o.noBtn ? 'div' : 'button', attr = o.noBtn ? '' : `data-act="${o.act || 'sel'}" data-id="${c.id}" aria-pressed="${o.pressed ? 'true' : 'false'}"`;
+  return `<${tag} class="cr ${o.cls || ''}" ${attr}><div class="top"><span class="e">${c.emoji}</span><div><b>${c.name}</b><small>${typeIcon(c.type)} ${c.type} · ${c.role}</small></div></div>
+  <div class="st4">${ratingRow('ATK', c.atk)}${ratingRow('DEF', c.def)}${ratingRow('SPD', c.spd)}${ratingRow('ENG', c.eng)}</div>
+  <div class="meta">${o.extra || `Baseline ${f2(Engine.baseline(c))} · Risk ${c.risk}`}</div></${tag}>`;
+}
+function wxCard(w) {
+  const info = Engine.WEATHER[w.weather], m = Engine.MODES[w.mult_mode];
+  const pills = info.up ? `<span class="mul up">${typeIcon(info.up)} ${info.up} × ${fmtMult(m.up)}</span><span class="mul dn">${typeIcon(info.down)} ${info.down} × ${fmtMult(m.down)}</span><span class="mul">All others × 1.00</span>` : '<span class="mul">Everyone × 1.00</span>';
+  return `<div class="wx"><span class="big">${info.icon}</span><div><div class="sm note">WEEK ${w.week_no} WEATHER</div><div class="nm">${w.weather}</div></div><div class="row">${pills}</div></div>`;
+}
+const teamName = id => { const t = S.teams.find(t => t.id === id); return t ? t.name : '—'; };
+const myRoster = () => S.rosters.filter(r => r.team_id === S.me.id).map(r => r.creature_id);
+function standings() {
+  const m = {}; S.teams.forEach(t => m[t.id] = { id: t.id, name: t.name, w: 0, l: 0, t: 0, pf: 0, pa: 0, g: 0 });
+  S.results.forEach(r => { const x = m[r.team_id]; if (!x) return; if (r.outcome === 'bye') return; x.g++; x.pf += r.score; x.pa += r.opp_score; if (r.outcome === 'W') x.w++; else if (r.outcome === 'L') x.l++; else x.t++; });
+  return Object.values(m).sort((a, b) => b.w - a.w || b.pf - a.pf);
+}
+function standingsTable() {
+  const rows = standings();
+  return `<div class="card tbl"><table><tr><th>#</th><th>Team</th><th>W</th><th>L</th><th>T</th><th>Points</th><th>+/−</th></tr>${rows.map((x, i) => `<tr class="${x.id === S.me.id ? 'me' : ''}"><td>${i + 1}</td><td>${esc(x.name)}</td><td>${x.w}</td><td>${x.l}</td><td>${x.t}</td><td>${f2(x.pf)}</td><td>${Engine.fmt(x.pf - x.pa, 2, true)}</td></tr>`).join('')}</table></div>`;
+}
+function filtered(list) {
+  const q = flt.q.toLowerCase();
+  let l = list.filter(c => (!q || c.name.toLowerCase().includes(q)) && (!flt.type || c.type === flt.type) && (!flt.role || c.role === flt.role));
+  const key = { base: c => -Engine.baseline(c), atk: c => -c.atk, def: c => -c.def, spd: c => -c.spd, eng: c => -c.eng, name: c => c.name };
+  l = l.slice().sort((a, b) => { const x = key[flt.sort](a), y = key[flt.sort](b); return x < y ? -1 : x > y ? 1 : 0; });
+  return l;
+}
+function filterBar() {
+  return `<div class="row"><input type="text" id="fq" placeholder="Search" value="${esc(flt.q)}" style="width:9em">
+  <select id="ft"><option value="">All types</option>${Engine.TYPES.map(t => `<option ${flt.type === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+  <select id="fr"><option value="">All roles</option>${Object.keys(Engine.ROLES).map(t => `<option ${flt.role === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+  <select id="fs">${[['base', 'Best baseline'], ['atk', 'Attack'], ['def', 'Defense'], ['spd', 'Speed'], ['eng', 'Energy'], ['name', 'Name']].map(([k, l]) => `<option value="${k}" ${flt.sort === k ? 'selected' : ''}>Sort: ${l}</option>`).join('')}</select></div>`;
+}
+
+/* =============================== student: login =============================== */
+function loginView() {
+  const saved = lsGet('cdl:last') ? JSON.parse(lsGet('cdl:last')) : {};
+  return `<div class="col" style="max-width:420px;margin:6vh auto 0">
+  <h1>🦊 Creature Draft League</h1>
+  <p class="note">Draft your squad, set your lineup, and out-calculate your rivals.</p>
+  <form class="card col" id="loginForm">
+    <label>Class code<br><input type="text" id="lcode" value="${esc(saved.code || '')}" autocomplete="off" autocapitalize="characters" style="width:100%"></label>
+    <label>Team name<br><input type="text" id="lname" value="${esc(saved.name || '')}" autocomplete="off" maxlength="24" style="width:100%"></label>
+    <label>4-digit PIN<br><input type="password" id="lpin" inputmode="numeric" maxlength="4" autocomplete="off" style="width:100%"></label>
+    <button class="btn" type="submit">Join or log in</button>
+    ${err ? `<p class="err">${esc(err)}</p>` : ''}
+    <p class="note sm">First time? Pick a team name (add your initials) and a PIN you will remember. Next time, use the same name and PIN to get back in.</p>
+  </form>
+  <p class="note sm"><a href="#/teacher">Teacher login</a></p></div>`;
+}
+
+/* =============================== student: main =============================== */
+function header() {
+  const L = S.league, w = S.week;
+  const st = w ? { forecast: 'Lineups open', calc: 'Calculate!', final: 'Final' }[w.status] : '';
+  return `<div class="row sp"><div><h1>${esc(S.me.name)}</h1><div class="note sm">${esc(L.name)} · ${L.phase === 'setup' ? 'Waiting to start' : L.phase === 'draft' ? 'Draft' : L.phase === 'done' ? 'Season complete' : 'Week ' + L.currentWeek + (st ? ' · ' + st : '')}</div></div><button class="btn alt sm" data-act="logout">Log out</button></div>`;
+}
+function studentTabs() {
+  const L = S.league, t = [['home', 'Home']];
+  if (L.phase !== 'setup') t.push(['draft', 'Draft']);
+  t.push(['roster', 'My Squad']);
+  if (L.phase === 'season' || L.phase === 'done') t.push(['match', 'Matchup'], ['league', 'League']);
+  t.push(['guide', 'Rules']);
+  if (!t.some(x => x[0] === tab)) tab = 'home';
+  return `<div class="tabs" role="tablist">${t.map(([k, l]) => `<button class="tab" role="tab" aria-selected="${k === tab}" data-act="tab" data-v="${k}">${l}</button>`).join('')}</div>`;
+}
+function homeView() {
+  const L = S.league, w = S.week;
+  if (L.phase === 'setup') return `<div class="card col"><h2>Waiting for the draft</h2><p>${S.teams.length} team${S.teams.length === 1 ? ' has' : 's have'} joined. Your teacher will start the draft soon.</p><div class="row">${S.teams.map(t => `<span class="pill ${t.id === S.me.id ? 'on' : ''}">${esc(t.name)}</span>`).join('')}</div></div>`;
+  if (L.phase === 'draft') {
+    const done = L.pickNo >= L.totalPicks, on = done ? null : L.draftOrder[Engine.snakeSlot(L.draftOrder.length, L.pickNo)];
+    return `<div class="card col"><h2>${done ? 'Draft complete 🎉' : on === S.me.id ? 'It’s your pick!' : 'Draft in progress'}</h2><p>${done ? 'Your teacher will start the season soon.' : `Pick ${L.pickNo + 1} of ${L.totalPicks}. ${on === S.me.id ? 'Choose a creature now.' : esc(teamName(on)) + ' is on the clock.'}`}</p><button class="btn" data-act="tab" data-v="draft" style="align-self:flex-start">Go to the draft</button></div>`;
+  }
+  if (L.phase === 'done') return `<div class="col"><h2>Final standings</h2>${standingsTable()}</div>`;
+  if (!w) return `<div class="card col"><h2>Season starting</h2><p>Your teacher will open Week 1 soon. Meanwhile, look over your squad and the league.</p></div>`;
+  const opp = w.bye ? null : teamName(w.oppId);
+  const head = `<div class="row sp"><h2>Week ${w.week_no}: ${w.bye ? 'Bye week 😴' : 'vs ' + esc(opp)}</h2></div>`;
+  let body = '';
+  if (w.status === 'forecast') body = `${wxCard(w)}<div class="card col"><h3>Your move</h3><p>${w.lineup.saved ? 'Your lineup is saved. You can still change it until your teacher locks lineups.' : 'You have not saved a lineup yet. Choose your 3 starters and an optional power-up.'}</p><button class="btn" data-act="tab" data-v="roster" style="align-self:flex-start">Set my lineup</button></div>`;
+  else if (w.status === 'calc') body = `${wxCard(w)}<div class="card col"><h3>Stats are revealed</h3><p>Calculate each starter’s score on paper, then type your answers into the Matchup tab to check them.</p><button class="btn" data-act="tab" data-v="match" style="align-self:flex-start">Open the worksheet</button></div>`;
+  else { const r = S.results.find(x => x.week_no === w.week_no && x.team_id === S.me.id);
+    body = r ? resultCard(r) : ''; body += `<p class="note">Your teacher will open the next week soon. You can make add/drops on the My Squad tab.</p>`; }
+  return `<div class="col">${head}${body}</div>`;
+}
+function resultCard(r) {
+  if (r.outcome === 'bye') return `<div class="card"><h3>Bye week</h3><p>You scored <b>${f2(r.score)}</b> but did not play a matchup.</p></div>`;
+  const cls = r.outcome === 'W' ? 'win' : r.outcome === 'L' ? 'loss' : '';
+  return `<div class="card col"><div class="big ${cls}">${r.outcome === 'W' ? 'You won! 🎉' : r.outcome === 'L' ? 'You lost this one' : 'A tie!'}</div><p><b>${esc(teamName(r.team_id))}</b> ${f2(r.score)} — ${f2(r.opp_score)} <b>${esc(teamName(r.opp_id))}</b></p></div>`;
+}
+
+/* ---------- draft ---------- */
+function draftView() {
+  const L = S.league;
+  if (L.phase === 'setup') return '<div class="card">The draft has not started.</div>';
+  const n = L.draftOrder.length, done = L.pickNo >= L.totalPicks, on = done ? null : L.draftOrder[Engine.snakeSlot(n, L.pickNo)];
+  const mine = on === S.me.id, owned = new Set(S.rosters.map(r => r.creature_id));
+  let h = `<div class="clock ${mine ? 'me' : ''}">${done ? '🎉 Draft complete!' : mine ? `🔔 Your pick! (pick ${L.pickNo + 1} of ${L.totalPicks})` : `Pick ${L.pickNo + 1} of ${L.totalPicks} · Round ${Math.floor(L.pickNo / n) + 1} · <b>${esc(teamName(on))}</b> is on the clock`}</div>`;
+  h += `<div class="teams">${L.draftOrder.map(tid => { const ros = S.rosters.filter(r => r.team_id === tid); return `<div class="team ${tid === on ? 'on' : ''} ${tid === S.me.id ? 'me' : ''}"><h3>${esc(teamName(tid))}</h3>${Array.from({ length: L.rosterSize }, (_, i) => ros[i] ? `<div class="slot">${cr(ros[i].creature_id).emoji} ${cr(ros[i].creature_id).name}</div>` : '<div class="slot empty">—</div>').join('')}</div>`; }).join('')}</div>`;
+  if (!done) {
+    const c = sel && !owned.has(sel) ? cr(sel) : null;
+    h += `<div class="card row sp"><div>${c ? `${c.emoji} <b>${c.name}</b> <span class="note">${typeIcon(c.type)} ${c.type} · ${c.role}</span>` : '<span class="note">Tap a creature to look closer, then draft it on your turn.</span>'}</div><button class="btn" data-act="pick" ${c && mine ? '' : 'disabled'}>${mine ? 'Draft this creature' : 'Not your turn'}</button></div>`;
+    h += filterBar() + `<div class="grid" id="pool"></div>`;
+  }
+  return h;
+}
+function poolHTML() { const owned = new Set(S.rosters.map(r => r.creature_id)); const l = filtered(C.filter(c => !owned.has(c.id))); return l.map(c => cCard(c, { pressed: sel === c.id })).join('') || '<p class="note">No creatures match.</p>'; }
+
+/* ---------- squad: lineup + add/drop ---------- */
+function weekForLineup() { return S.week && S.week.status === 'forecast' ? S.week : null; }
+function squadView() {
+  const L = S.league, ros = myRoster();
+  let h = `<h2>My squad (${ros.length}/${L.rosterSize})</h2>`;
+  const w = weekForLineup();
+  if (L.phase !== 'season' && L.phase !== 'done') { h += `<div class="grid">${ros.map(id => cCard(cr(id), { noBtn: true })).join('') || '<p class="note">No creatures yet.</p>'}</div>`; return h; }
+  const key = S.week ? S.week.week_no + ':' + S.week.lineup.starters.join(',') + S.week.lineup.powerup + S.week.lineup.target : 'none';
+  if (S.week && lineupKey !== key) { lineupKey = key; lineup = S.week.lineup.starters.slice(); puSel = { type: S.week.lineup.powerup || '', target: S.week.lineup.target || 0 }; }
+  const open = !!w;
+  if (S.week) h += wxCard(S.week);
+  if (S.week && !open) h += `<div class="banner">${S.week.status === 'calc' ? 'Lineups are locked for this week.' : 'This week is finished. Add/drops are open for next week.'}</div>`;
+  if (open) h += `<p class="note">Pick exactly ${L.starters} starters. Teal outline = starting. The rest sit on the bench and score nothing.</p>`;
+  const wk = S.week;
+  h += `<div class="grid">${ros.map(id => { const c = cr(id), on = (open ? lineup : (wk ? wk.lineup.starters : [])).includes(id);
+    const proj = wk ? Engine.projection(c, wk.weather, wk.mult_mode) : null;
+    return cCard(c, { act: 'start', pressed: false, cls: on ? 'start' : '', noBtn: !open, extra: `${on ? '<b>STARTER</b>' : 'Bench'}${proj != null ? ` · Projected <b>${f2(proj)}</b> · Risk ${c.risk}` : ''}` }); }).join('')}</div>`;
+  if (wk) {
+    const stt = (open ? lineup : wk.lineup.starters), tot = stt.reduce((a, id) => a + Engine.projection(cr(id), wk.weather, wk.mult_mode), 0);
+    h += `<div class="card col"><div class="row sp"><h3>Projected team total</h3><span class="big">${f2(tot)}</span></div><p class="note sm">Projections use each creature’s ratings and this week’s weather. Actual scores will differ: that is the fun of fantasy.</p>`;
+    const left = S.me.powerups;
+    h += `<h3>Power-up (optional, one per week)</h3><div class="row">${Object.entries(Engine.POWERUPS).map(([k, p]) => `<button class="chip" data-act="pu" data-v="${k}" aria-pressed="${puSel.type === k}" ${!open || left[k] <= 0 ? 'disabled' : ''}>${p.icon} ${p.name} (${left[k]} left)</button>`).join('')}${puSel.type && open ? '<button class="chip" data-act="pu" data-v="">None</button>' : ''}</div>`;
+    if (puSel.type) h += `<p class="sm">${Engine.POWERUPS[puSel.type].text}</p>${open ? `<label>Apply to: <select id="putarget"><option value="0">— choose a starter —</option>${lineup.map(id => `<option value="${id}" ${puSel.target === id ? 'selected' : ''}>${cr(id).name}</option>`).join('')}</select></label>` : `<p>Applied to <b>${esc(cr(puSel.target).name)}</b></p>`}`;
+    if (open) h += `<div class="row"><button class="btn" data-act="saveLineup" ${lineup.length === L.starters && (!puSel.type || lineup.includes(puSel.target)) ? '' : 'disabled'}>${wk.lineup.saved ? 'Update lineup' : 'Save lineup'}</button><span class="note sm">${lineup.length}/${L.starters} starters chosen${wk.lineup.saved ? ' · saved ✓' : ''}</span></div>`;
+    h += '</div>';
+  }
+  // add / drop
+  const canMove = !(S.week && S.week.status === 'calc');
+  const used = S.me.movesUsed, max = L.movesPerWeek;
+  h += `<div class="card col"><div class="row sp"><h3>Add / drop</h3><span class="pill">${used}/${max} moves used for week ${S.me.moveWindow}</span></div>`;
+  if (!canMove) h += '<p class="note">Add/drops are closed while scores are being calculated.</p>';
+  else if (used >= max) h += '<p class="note">You have used all your moves for this week.</p>';
+  else {
+    h += `<p class="note sm">Swap one of your creatures for a free agent. Choose who to drop, then who to add.</p><div class="row">${ros.map(id => `<button class="chip" data-act="drop" data-id="${id}" aria-pressed="${dropSel === id}">${cr(id).emoji} ${cr(id).name}</button>`).join('')}</div>`;
+    h += `<div class="row"><button class="btn" data-act="addDrop" ${dropSel && addSel ? '' : 'disabled'}>${dropSel && addSel ? `Drop ${cr(dropSel).name}, add ${cr(addSel).name}` : 'Choose a drop and an add'}</button></div>`;
+    h += filterBar() + `<div class="grid sm" id="pool"></div>`;
+  }
+  return h + '</div>';
+}
+function freeAgentsHTML() { const owned = new Set(S.rosters.map(r => r.creature_id)); return filtered(C.filter(c => !owned.has(c.id))).slice(0, 60).map(c => cCard(c, { act: 'addsel', pressed: addSel === c.id })).join(''); }
+
+/* ---------- matchup worksheet ---------- */
+function qrow(key, label, w, hint) {
+  const a = w.answers[key] || {}, val = inputs[key] != null ? inputs[key] : (a.value || '');
+  return `<div class="q"><label class="lbl" for="q-${key}">${label}</label><input type="text" id="q-${key}" data-k="${key}" inputmode="decimal" autocomplete="off" value="${esc(val)}" class="${a.solved ? 'ok' : (a.tries ? 'no' : '')}" ${a.solved ? 'readonly' : ''}>
+  <button class="btn sm" data-act="check" data-k="${key}" ${a.solved ? 'disabled' : ''}>${a.solved ? '✓' : 'Check'}</button>
+  <span class="msg ${a.solved ? 'ok' : 'no'}" data-m="${key}">${a.solved ? 'Correct!' : esc(hints[key] || '')}</span></div>`;
+}
+const hints = {};
+function matchView() {
+  const w = S.week;
+  if (!w) return '<div class="card">No week is open yet.</div>';
+  if (w.bye) return `<div class="card col"><h2>Bye week 😴</h2><p>No opponent this week. You can still practise by checking your own starters when scores are revealed.</p></div>`;
+  const opp = teamName(w.oppId);
+  let h = `<h2>Week ${w.week_no}: ${esc(S.me.name)} vs ${esc(opp)}</h2>${wxCard(w)}`;
+  const stt = w.lineup.starters;
+  if (w.status === 'forecast') {
+    h += `<div class="card col"><h3>Your lineup (so far)</h3>${stt.map(id => `<div>${cr(id).emoji} <b>${cr(id).name}</b> <span class="note">projected ${f2(Engine.projection(cr(id), w.weather, w.mult_mode))}</span></div>`).join('')}<p class="note">Stats appear here once your teacher locks lineups.</p></div>`;
+    return h;
+  }
+  h += `<div class="formula">Score = (A × W) + D + B − P</div><p class="note sm">A = Attack · W = weather multiplier · D = Defense · B = Speed bonus · P = Energy penalty. Work it out on paper first, then check each answer here.</p>`;
+  let solved = 0, need = stt.length * 2 + 1;
+  stt.forEach(id => { ['aw:' + id, 's:' + id].forEach(k => { if ((w.answers[k] || {}).solved) solved++; }); });
+  if ((w.answers.team || {}).solved) solved++;
+  stt.forEach(id => {
+    const c = cr(id), st = w.stats[id], pu = w.lineup.target === id ? w.lineup.powerup : null;
+    let W = Engine.multiplier(w.weather, w.mult_mode, c.type), Wn = '';
+    if (pu === 'wx' && W < 100) { Wn = `weather was ×${fmtMult(W)}`; W = 100; }
+    const P = pu === 'def' ? 0 : st.p;
+    const chips = `<span class="sc ${pu === 'atk' ? 'pu' : ''}"><small>A</small>${f1(st.a)}${pu === 'atk' ? ' <small>+1.5 💥</small>' : ''}</span><span class="sc ${pu === 'wx' ? 'pu' : ''}"><small>W</small>×${fmtMult(W)}${pu === 'wx' ? ' ☂️' : ''}</span><span class="sc"><small>D</small>${f1(st.d)}</span><span class="sc"><small>B</small>${f2(st.b)}</span><span class="sc ${pu === 'def' ? 'pu' : ''}"><small>P</small>${f2(P)}${pu === 'def' ? ' 🛡️' : ''}</span>`;
+    const awLabel = pu === 'atk' ? `(${f1(st.a)} + 1.5) × ${fmtMult(W)} =` : `${f1(st.a)} × ${fmtMult(W)} =`;
+    h += `<div class="card col"><div class="row sp"><div class="row"><span class="e" style="font-size:1.8rem">${c.emoji}</span><b>${c.name}</b><span class="note sm">${typeIcon(c.type)} ${c.type}</span></div>${pu ? `<span class="pill hot">${Engine.POWERUPS[pu].icon} ${Engine.POWERUPS[pu].name}${Wn ? ' (' + Wn + ')' : ''}</span>` : ''}</div>
+    <div class="chips6">${chips}</div>
+    ${qrow('aw:' + id, 'Step 1 · ' + awLabel, w)}
+    ${qrow('s:' + id, 'Step 2 · A×W + D + B − P =', w)}
+    </div>`;
+  });
+  h += `<div class="card col"><h3>Team total</h3>${qrow('team', 'Add your starters’ scores =', w)}<p class="note sm">Official scores are rounded to 2 decimal places.</p></div>`;
+  const ch = w.challenge, chOpen = ch === 'margin' ? w.status === 'final' : (w.answers.team || {}).solved;
+  const projTot = stt.reduce((a, id) => a + Engine.projection(cr(id), w.weather, w.mult_mode), 0);
+  h += `<div class="card col"><h3>⭐ Challenge</h3>`;
+  if (!chOpen) h += `<p class="note">${ch === 'margin' ? 'This question opens when your teacher publishes the results.' : 'Confirm your team total to unlock the challenge question.'}</p>`;
+  else h += `<p>${Engine.CHALLENGE_TEXT[ch]}</p>${ch === 'proj' ? `<p class="sm note">Projected total: <b>${f2(projTot)}</b></p>` : ''}${qrow('chal', 'Answer =', w)}`;
+  h += '</div>';
+  if (w.status === 'final') { const r = S.results.find(x => x.week_no === w.week_no && x.team_id === S.me.id); if (r) h = `<h2>Week ${w.week_no} result</h2>` + resultCard(r) + h.replace(/^<h2>.*?<\/h2>/, ''); }
+  const prog = `<div class="row sp"><span class="pill ${solved === need ? 'on' : ''}">${solved}/${need} confirmed</span>${solved === need ? '<span class="msg ok">All confirmed! Great work 🎉</span>' : ''}</div>`;
+  return prog + h;
+}
+
+/* ---------- league ---------- */
+function leagueView() {
+  let h = `<h2>Standings</h2>${standingsTable()}`;
+  const done = S.weeks.filter(w => w.status === 'final');
+  if (done.length) {
+    h += '<h2>Results</h2>';
+    done.slice().reverse().forEach(w => {
+      const rs = S.results.filter(r => r.week_no === w.week_no && r.team_id < (r.opp_id || '~') || (r.week_no === w.week_no && r.outcome === 'bye'));
+      h += `<div class="card col"><h3>Week ${w.week_no} · ${Engine.WEATHER[w.weather].icon} ${w.weather}</h3>${rs.map(r => r.outcome === 'bye' ? `<div>${esc(teamName(r.team_id))}: bye (${f2(r.score)})</div>` : `<div>${esc(teamName(r.team_id))} <b>${f2(r.score)}</b> — <b>${f2(r.opp_score)}</b> ${esc(teamName(r.opp_id))}</div>`).join('')}</div>`;
+    });
+  }
+  const up = S.weeks.filter(w => w.status !== 'upcoming' && w.pairings);
+  if (up.length) h += `<h2>Schedule</h2><div class="card col">${up.map(w => `<div><b>Week ${w.week_no}</b>: ${w.pairings.map(p => p[1] ? `${esc(teamName(p[0]))} vs ${esc(teamName(p[1]))}` : `${esc(teamName(p[0]))} (bye)`).join(' · ')}</div>`).join('')}</div>`;
+  h += `<h2>All rosters</h2><div class="teams">${S.teams.map(t => `<div class="team ${t.id === S.me.id ? 'me' : ''}"><h3>${esc(t.name)}</h3>${S.rosters.filter(r => r.team_id === t.id).map(r => `<div class="slot">${cr(r.creature_id).emoji} ${cr(r.creature_id).name}</div>`).join('')}</div>`).join('')}</div>`;
+  return h;
+}
+
+/* ---------- rules ---------- */
+function guideView() {
+  const ex = cr(1);
+  return `<div class="col"><h2>How the league works</h2>
+  <div class="card col"><h3>The weekly cycle</h3><ol class="col" style="margin:0;padding-left:1.2em">
+  <li><b>Forecast.</b> See the weather, your opponent and each creature’s projection.</li>
+  <li><b>Lineup.</b> Pick ${S ? S.league.starters : 3} starters from your squad and (optionally) one power-up.</li>
+  <li><b>Lock & reveal.</b> Your teacher locks lineups. The week’s real stats appear.</li>
+  <li><b>Calculate.</b> Work out each starter’s score <u>on paper</u>, then type your answers to check them.</li>
+  <li><b>Results.</b> Official scores decide the matchup and the standings.</li></ol></div>
+  <div class="card col"><h3>The scoring formula</h3><div class="formula">Score = (A × W) + D + B − P</div>
+  <p><b>A</b> Attack this week · <b>W</b> weather multiplier · <b>D</b> Defense this week · <b>B</b> Speed bonus · <b>P</b> Energy penalty.</p>
+  <p class="sm note">Only Attack gets the weather multiplier. Work out A × W first, then add D and B, then subtract P. That is the order of operations!</p></div>
+  <div class="card col"><h3>Weather</h3><div class="tbl"><table><tr><th>Weather</th><th>Boosted</th><th>Weakened</th></tr>${Engine.WEATHER_NAMES.map(n => { const w = Engine.WEATHER[n]; return `<tr><td>${w.icon} ${n}</td><td>${w.up ? typeIcon(w.up) + ' ' + w.up : 'none'}</td><td>${w.down ? typeIcon(w.down) + ' ' + w.down : 'none'}</td></tr>`; }).join('')}</table></div><p class="note sm">Early weeks are Clear Skies (×1.00). Later the multipliers are ×1.20 and ×0.80, then ×1.25 and ×0.75.</p></div>
+  <div class="card col"><h3>Roles</h3>${Object.entries(Engine.ROLES).map(([k, r]) => `<div><b>${k}</b> · ${r.blurb}</div>`).join('')}</div>
+  <div class="card col"><h3>Power-ups</h3>${Object.values(Engine.POWERUPS).map(p => `<div>${p.icon} <b>${p.name}</b> (${p.uses} per season) · ${p.text}</div>`).join('')}<p class="note sm">One power-up per week at most.</p></div></div>`;
+}
+
+/* =============================== teacher =============================== */
+let TS = { leagues: null, id: lsGet('cdl:tl'), data: null, modal: null, pin: {} };
+async function tLoad(full) {
+  if (!TS.leagues || full) TS.leagues = (await api('tOverview', {}, TT)).leagues;
+  if (!TS.id && TS.leagues[0]) TS.id = TS.leagues[0].id;
+  if (TS.id && TS.leagues.some(l => l.id === TS.id)) TS.data = await api('tLeague', { leagueId: TS.id }, TT); else TS.data = null;
+}
+function tLoginView() {
+  return `<div class="col" style="max-width:380px;margin:8vh auto 0"><h1>Teacher login</h1><form class="card col" id="tform"><label>Password<br><input type="password" id="tpw" style="width:100%"></label><button class="btn" type="submit">Log in</button>${err ? `<p class="err">${esc(err)}</p>` : ''}</form><p class="note sm"><a href="#/">Student page</a></p></div>`;
+}
+const STATUS = { upcoming: 'Not open', forecast: 'Lineups open', calc: 'Calculating', final: 'Final' };
+function teacherView() {
+  if (!TS.leagues) return err ? `<h1>Teacher console</h1><div class="banner"><b>Could not load.</b><br>${esc(err)}</div><div class="row"><button class="btn" data-act="tretry">Try again</button><button class="btn alt" data-act="tlogout">Log out</button></div>` : '<p class="note">Loading…</p>';
+  let h = `<div class="row sp"><h1>Teacher console</h1><div class="row"><a class="btn alt sm" href="#/" style="text-decoration:none">Student view</a><button class="btn alt sm" data-act="tlogout">Log out</button></div></div>`;
+  if (err) h += `<div class="banner err">${esc(err)}</div>`;
+  h += `<div class="row">${TS.leagues.map(l => `<button class="chip" data-act="tpick" data-id="${l.id}" aria-pressed="${l.id === TS.id}">${esc(l.name)} · ${l.teams}</button>`).join('')}<form class="row" id="newLeague"><input type="text" id="nl" placeholder="New league (e.g. 6CK)" style="width:11em"><button class="btn sm" type="submit">Add</button></form></div>`;
+  const D = TS.data; if (!D) return h + '<p class="note">Create a league to begin.</p>';
+  const L = D.league, nm = id => { const t = D.teams.find(t => t.id === id); return t ? esc(t.name) : '—'; };
+  h += `<div class="card row sp"><div><h2>${esc(L.name)}</h2><span class="pill on">${{ setup: 'Joining', draft: 'Drafting', season: 'Season', done: 'Complete' }[L.phase]}</span></div><div><div class="note sm">Class code (give to students)</div><div class="big" style="letter-spacing:.08em">${esc(L.code)}</div></div></div>`;
+  // phase controls
+  if (L.phase === 'setup') h += `<div class="card col"><h3>Settings</h3><div class="row">
+    <label>Creatures per team <select id="s-rs">${[4, 5, 6, 7].map(n => `<option ${n === L.roster_size ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+    <label>Season weeks <select id="s-sw">${[3, 4, 5, 6, 7, 8, 9, 10].map(n => `<option ${n === L.season_weeks ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+    <label>Add/drops per week <select id="s-mv">${[0, 1, 2, 3, 4].map(n => `<option ${n === L.moves_per_week ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+    <button class="btn alt sm" data-act="tsave">Save settings</button></div>
+    <p class="note sm">${D.teams.length} team(s) joined · ${D.teams.length * L.roster_size} of 120 creatures will be drafted. Starters are fixed at ${L.starters}; the rest sit on the bench.</p>
+    <div><button class="btn" data-act="tstartdraft" ${D.teams.length < 2 ? 'disabled' : ''}>Start the draft (random order)</button></div></div>`;
+  if (L.phase === 'draft') { const n = L.draft_order.length, done = L.pick_no >= n * L.roster_size, on = done ? null : L.draft_order[Engine.snakeSlot(n, L.pick_no)];
+    h += `<div class="card col"><h3>Draft: pick ${Math.min(L.pick_no + 1, n * L.roster_size)} of ${n * L.roster_size}</h3><p>${done ? 'Draft complete.' : 'On the clock: <b>' + nm(on) + '</b>'}</p><div class="row"><button class="btn alt" data-act="tauto" ${done ? 'disabled' : ''}>Auto-pick best available</button><button class="btn alt" data-act="tundo" ${L.pick_no ? '' : 'disabled'}>Undo last pick</button><button class="btn" data-act="tseason" ${done ? '' : 'disabled'}>Start the season</button></div></div>`; }
+  if (L.phase === 'season' || L.phase === 'done') {
+    h += `<div class="card col"><h3>Weeks</h3><div class="tbl"><table><tr><th>Wk</th><th>Weather</th><th>Multipliers</th><th>Status</th><th>Action</th></tr>${D.weeks.map(w => {
+      const edit = w.status === 'upcoming' || w.status === 'forecast', cur = w.week_no === L.current_week;
+      let a = '';
+      if (w.status === 'upcoming') a = `<button class="btn sm" data-act="topen" data-w="${w.week_no}" ${w.week_no === 1 || D.weeks[w.week_no - 2].status === 'final' ? '' : 'disabled'}>Open forecast</button>`;
+      else if (w.status === 'forecast') a = `<button class="btn warn sm" data-act="tlock">Lock lineups & reveal stats</button>`;
+      else if (w.status === 'calc') a = `<button class="btn sm" data-act="tpublish">Publish results</button>`;
+      return `<tr><td>${w.week_no}</td><td>${edit ? `<select data-act="twx" data-w="${w.week_no}">${Engine.WEATHER_NAMES.map(n => `<option ${n === w.weather ? 'selected' : ''}>${n}</option>`).join('')}</select>` : Engine.WEATHER[w.weather].icon + ' ' + w.weather}</td>
+      <td>${edit ? `<select data-act="tmode" data-w="${w.week_no}"><option value="standard" ${w.mult_mode === 'standard' ? 'selected' : ''}>1.20 / 0.80</option><option value="challenge" ${w.mult_mode === 'challenge' ? 'selected' : ''}>1.25 / 0.75</option></select>` : (w.mult_mode === 'challenge' ? '1.25 / 0.75' : '1.20 / 0.80')}</td>
+      <td><span class="pill ${cur && w.status !== 'final' ? 'on' : ''}">${STATUS[w.status]}</span></td><td>${a}${edit ? ` <button class="btn alt sm" data-act="treroll" data-w="${w.week_no}" title="Re-roll this week’s hidden stats">🎲</button>` : ''}</td></tr>`; }).join('')}</table></div></div>`;
+    const cw = D.weeks.find(w => w.week_no === L.current_week);
+    if (cw && (cw.status === 'calc' || cw.status === 'final')) h += `<div class="card col"><h3>Week ${cw.week_no} progress <span class="note sm">(${D.required} answers to confirm per team)</span></h3><div class="tbl"><table><tr><th>Team</th><th>Confirmed</th><th>Challenge</th><th>Wrong tries</th><th></th></tr>${D.progress.map(p => `<tr><td>${nm(p.teamId)}</td><td>${p.solved}/${D.required}</td><td>${p.chal ? '✓' : ''}</td><td>${p.tries}</td><td><button class="btn alt sm" data-act="treveal" data-id="${p.teamId}">Answers</button></td></tr>`).join('')}</table></div></div>`;
+    if (cw && cw.status === 'forecast') h += `<div class="card col"><h3>Week ${cw.week_no} lineups saved</h3><p>${D.lineups.length} of ${D.teams.length} teams have saved a lineup. Teams that have not will use last week’s starters.</p></div>`;
+  }
+  if (D.results.length) { const m = {}; D.teams.forEach(t => m[t.id] = { n: t.name, w: 0, l: 0, t: 0, pf: 0 }); D.results.forEach(r => { const x = m[r.team_id]; if (!x) return; x.pf += r.score; if (r.outcome === 'W') x.w++; if (r.outcome === 'L') x.l++; if (r.outcome === 'T') x.t++; });
+    h += `<div class="card col"><h3>Standings</h3><div class="tbl"><table><tr><th>Team</th><th>W</th><th>L</th><th>T</th><th>Points</th></tr>${Object.values(m).sort((a, b) => b.w - a.w || b.pf - a.pf).map(x => `<tr><td>${esc(x.n)}</td><td>${x.w}</td><td>${x.l}</td><td>${x.t}</td><td>${f2(x.pf)}</td></tr>`).join('')}</table></div></div>`; }
+  h += `<div class="card col"><h3>Teams</h3><div class="tbl"><table><tr><th>Team</th><th>Creatures</th><th>Reset PIN</th><th></th></tr>${D.teams.map(t => `<tr><td>${esc(t.name)}${t.locked ? ' 🔒' : ''}</td><td>${t.roster}</td><td><input type="text" inputmode="numeric" maxlength="4" size="5" data-pin="${t.id}" placeholder="1234"> <button class="btn alt sm" data-act="tpin" data-id="${t.id}">Set</button></td><td>${L.phase === 'setup' ? `<button class="btn alt sm" data-act="tremove" data-id="${t.id}">Remove</button>` : ''}</td></tr>`).join('')}</table></div></div>`;
+  h += `<div class="card row sp"><span class="note sm">Deleting a league erases its teams, rosters and results.</span><button class="btn alt sm" data-act="tdelete">${TS.confirmDel ? 'Really delete? Click again' : 'Delete this league'}</button></div>`;
+  if (TS.modal) h += `<div class="modal" data-act="closeModal"><div class="card col" onclick="event.stopPropagation()"><div class="row sp"><h2>${esc(TS.modal.title)}</h2><button class="btn alt sm" data-act="closeModal">Close</button></div>${TS.modal.html}</div></div>`;
+  return h;
+}
+function revealHTML(r) {
+  return `<p class="note sm">${Engine.WEATHER[r.weather].icon} ${r.weather}</p><div class="tbl"><table><tr><th>Creature</th><th>A</th><th>W</th><th>D</th><th>B</th><th>P</th><th>A×W</th><th>Score</th></tr>${r.rows.map(x => `<tr><td>${cr(x.cid).name}${x.pu ? ' (' + x.pu + ')' : ''}</td><td>${f1(x.A)}</td><td>${fmtMult(x.W)}</td><td>${f1(x.D)}</td><td>${f2(x.B)}</td><td>${f2(x.P)}</td><td>${f3(x.AW)}</td><td><b>${f2(x.S)}</b></td></tr>`).join('')}</table></div><p><b>Team total: ${f2(r.total)}</b></p>`;
+}
+
+/* =============================== render + events =============================== */
+function render() {
+  const root = $('#root');
+  if (isTeacher()) {
+    root.innerHTML = TT ? teacherView() : tLoginView(); return;
+  }
+  if (!TOKEN || !S) { root.innerHTML = loginView(); return; }
+  const v = { home: homeView, draft: draftView, roster: squadView, match: matchView, league: leagueView, guide: guideView }[tab]();
+  root.innerHTML = header() + (err ? `<div class="banner err">${esc(err)}</div>` : '') + studentTabs() + `<div class="col" style="margin-top:4px">${v}</div>`;
+  const p = $('#pool'); if (p) p.innerHTML = tab === 'draft' ? poolHTML() : freeAgentsHTML();
+}
+function softRender() { const a = document.activeElement; if (a && a.matches && a.matches('input,select,textarea') && a.closest('#root')) { pend = true; return; } render(); }
+document.addEventListener('focusout', () => { if (pend) { pend = false; setTimeout(() => { const a = document.activeElement; if (!(a && a.matches && a.matches('input,select,textarea'))) render(); }, 50); } });
+
+async function loadState(force) {
+  if (!TOKEN || isTeacher()) return;
+  try {
+    const j = await api('state', { since: force || !S ? undefined : S.version }, TOKEN);
+    if (j.unchanged) return;
+    const wk0 = S && S.week ? S.week.week_no : 0; S = j; err = '';
+    if ((S.week ? S.week.week_no : 0) !== wk0) { inputs = {}; for (const k in hints) delete hints[k]; }
+    softRender();
+  } catch (e) { if (e.status === 401) { TOKEN = null; lsSet('cdl:token'); S = null; } err = e.message; render(); }
+}
+async function tRefresh(full) {
+  if (!TT || !isTeacher()) return;
+  try { await tLoad(full); err = ''; softRender(); } catch (e) { if (e.status === 401) TT = null, lsSet('cdl:ttoken'); err = e.message; render(); }
+}
+setInterval(() => { if (document.hidden) return; if (isTeacher()) tRefresh(); else loadState(); }, 3500);
+window.addEventListener('hashchange', () => { err = ''; render(); if (isTeacher()) tRefresh(true); else loadState(true); });
+
+document.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (e.target.id === 'loginForm') {
+    const code = $('#lcode').value.trim(), name = $('#lname').value.trim(), pin = $('#lpin').value.trim();
+    await act(async () => { const r = await api('join', { code, name, pin }); TOKEN = r.token; lsSet('cdl:token', TOKEN); lsSet('cdl:last', JSON.stringify({ code, name })); tab = 'home'; await loadState(true); });
+  } else if (e.target.id === 'tform') {
+    await act(async () => { const r = await api('tLogin', { password: $('#tpw').value }); TT = r.token; lsSet('cdl:ttoken', TT); await tLoad(true); });
+  } else if (e.target.id === 'newLeague') {
+    const name = $('#nl').value; await act(async () => { const r = await api('tCreateLeague', { name }, TT); TS.id = r.id; lsSet('cdl:tl', r.id); await tLoad(true); });
+  }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'fq') { flt.q = t.value; const p = $('#pool'); if (p) p.innerHTML = tab === 'draft' ? poolHTML() : freeAgentsHTML(); }
+  else if (t.dataset && t.dataset.k) inputs[t.dataset.k] = t.value;
+});
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.dataset && e.target.dataset.k) { const b = document.querySelector(`[data-act="check"][data-k="${e.target.dataset.k}"]`); if (b) b.click(); } });
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'ft') { flt.type = t.value; render(); } else if (t.id === 'fr') { flt.role = t.value; render(); } else if (t.id === 'fs') { flt.sort = t.value; render(); }
+  else if (t.id === 'putarget') { puSel.target = +t.value; render(); }
+  else if (t.dataset && t.dataset.act === 'twx') act(async () => { await api('tSetWeather', { leagueId: TS.id, week: +t.dataset.w, weather: t.value, mode: t.closest('tr').querySelector('[data-act=tmode]').value }, TT); await tLoad(); });
+  else if (t.dataset && t.dataset.act === 'tmode') act(async () => { await api('tSetWeather', { leagueId: TS.id, week: +t.dataset.w, weather: t.closest('tr').querySelector('[data-act=twx]').value, mode: t.value }, TT); await tLoad(); });
+});
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el || el.tagName === 'SELECT') return;
+  const a = el.dataset.act, id = +el.dataset.id, v = el.dataset.v;
+  const T = fn => act(async () => { await fn(); await tLoad(); });
+  switch (a) {
+    case 'tab': tab = v; err = ''; render(); window.scrollTo(0, 0); break;
+    case 'logout': TOKEN = null; S = null; lsSet('cdl:token'); render(); break;
+    case 'sel': sel = id; render(); break;
+    case 'pick': act(async () => { await api('pick', { creature: sel }, TOKEN); sel = null; await loadState(true); }); break;
+    case 'start': { if (lineup.includes(id)) { lineup = lineup.filter(x => x !== id); if (puSel.target === id) puSel.target = 0; } else if (lineup.length < S.league.starters) lineup.push(id); render(); break; }
+    case 'pu': puSel = { type: v, target: v ? puSel.target : 0 }; render(); break;
+    case 'saveLineup': act(async () => { await api('setLineup', { starters: lineup, powerup: puSel.type || null, target: puSel.type ? puSel.target : null }, TOKEN); lineupKey = ''; await loadState(true); }); break;
+    case 'drop': dropSel = id; render(); break;
+    case 'addsel': addSel = id; render(); break;
+    case 'addDrop': act(async () => { await api('addDrop', { drop: dropSel, add: addSel }, TOKEN); dropSel = addSel = 0; lineupKey = ''; await loadState(true); }); break;
+    case 'check': { const k = el.dataset.k, val = (document.getElementById('q-' + k) || {}).value || '';
+      act(async () => { const r = await api('submit', { key: k, value: val }, TOKEN); await loadState(true); const w = S.week; if (!r.ok) hints[k] = r.hint; else { delete inputs[k]; delete hints[k]; } });
+      break; }
+    // teacher
+    case 'tretry': err = ''; tRefresh(true); break;
+    case 'tlogout': TT = null; lsSet('cdl:ttoken'); render(); break;
+    case 'tpick': TS.id = el.dataset.id; lsSet('cdl:tl', TS.id); T(async () => {}); break;
+    case 'tsave': T(() => api('tSettings', { leagueId: TS.id, rosterSize: +$('#s-rs').value, seasonWeeks: +$('#s-sw').value, movesPerWeek: +$('#s-mv').value }, TT)); break;
+    case 'tstartdraft': T(() => api('tStartDraft', { leagueId: TS.id }, TT)); break;
+    case 'tauto': T(() => api('tAutoPick', { leagueId: TS.id }, TT)); break;
+    case 'tundo': T(() => api('tUndoPick', { leagueId: TS.id }, TT)); break;
+    case 'tseason': T(() => api('tStartSeason', { leagueId: TS.id }, TT)); break;
+    case 'topen': T(() => api('tOpenWeek', { leagueId: TS.id, week: +el.dataset.w }, TT)); break;
+    case 'tlock': T(() => api('tLockWeek', { leagueId: TS.id }, TT)); break;
+    case 'tpublish': T(() => api('tPublishWeek', { leagueId: TS.id }, TT)); break;
+    case 'treroll': T(() => api('tReroll', { leagueId: TS.id, week: +el.dataset.w }, TT)); break;
+    case 'tpin': { const inp = document.querySelector(`[data-pin="${el.dataset.id}"]`); T(() => api('tResetPin', { teamId: el.dataset.id, pin: inp.value }, TT)); break; }
+    case 'tremove': T(() => api('tRemoveTeam', { teamId: el.dataset.id }, TT)); break;
+    case 'tdelete': if (!TS.confirmDel) { TS.confirmDel = true; render(); } else { TS.confirmDel = false; T(async () => { await api('tDeleteLeague', { leagueId: TS.id }, TT); TS.id = null; lsSet('cdl:tl'); TS.leagues = null; await tLoad(true); }); } break;
+    case 'treveal': act(async () => { const cw = TS.data.league.current_week; const r = await api('tReveal', { leagueId: TS.id, teamId: el.dataset.id, week: cw }, TT); TS.modal = { title: 'Answers: ' + (TS.data.teams.find(t => t.id === el.dataset.id) || {}).name, html: revealHTML(r) }; }); break;
+    case 'closeModal': TS.modal = null; render(); break;
+  }
+});
+
+if (isTeacher() && TT) tRefresh(true); else if (TOKEN) loadState(true);
+render();
+</script>
+</body>
+</html>

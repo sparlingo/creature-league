@@ -1,0 +1,19 @@
+{
+  "name": "creature-draft-league",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fantasy-style creature draft league for practising decimal arithmetic",
+  "scripts": {
+    "test": "node --test test/league.test.js test/engine.test.js test/errors.test.js",
+    "dev": "node scripts/dev-server.js"
+  },
+  "dependencies": {
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.2.17"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
